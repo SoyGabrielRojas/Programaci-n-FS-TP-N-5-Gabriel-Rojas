@@ -24,9 +24,22 @@ function crearIngreso(req, res) {
         if (err) {
             res.status(500).json({ message: "Error al crear ingreso", detail: err });
         } else {
-            res.status(201).json(result);
+            // Una vez que se crea el ingreso, se obtienen los datos completos del ingreso creado
+            const idIngreso = result.insertId; // Suponiendo que el campo auto-incremental se llama idIngreso
+            ingresoBD.metodos.getById(idIngreso, (err, ingresoCreado) => {
+                if (err) {
+                    res.status(500).json({ message: "Ingreso creado, pero error al recuperar los datos", detail: err });
+                } else {
+                    res.status(201).json({
+                        message: "Información del ingreso creado",
+                        ingreso: ingresoCreado
+                    });
+                }
+            });
         }
     });
 }
+
+
 
 module.exports = app;

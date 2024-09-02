@@ -31,6 +31,27 @@ metodos.getAll = function (callback) {
     });
 };
 
+metodos.getById = function (idIngreso, callback) {
+    const consulta = `
+        SELECT 
+            ingreso.*, 
+            CONCAT(paciente.apellido, ' ', paciente.nombre) AS ApeNomPaciente, 
+            CONCAT(medico.apellido, ' ', medico.nombre) AS ApeNomMedico
+        FROM ingreso
+        JOIN paciente ON ingreso.nro_historial_paciente = paciente.nro_historial_clinico
+        JOIN medico ON ingreso.matricula_medico = medico.matricula
+        WHERE ingreso.id_ingreso = ?
+    `;
+    connection.query(consulta, [idIngreso], (err, resultados) => {
+        if (err) {
+            callback(err);
+        } else {
+            callback(undefined, resultados[0]);
+        }
+    });
+};
+
+
 metodos.crearIngreso = function (datos, callback) {
     const consulta = "INSERT INTO ingreso (fecha_ingreso, nro_habitacion, nro_cama, observaciones, nro_historial_paciente, matricula_medico) VALUES (?, ?, ?, ?, ?, ?)";
     connection.query(consulta, [datos.fecha_ingreso, datos.nro_habitacion, datos.nro_cama, datos.observaciones, datos.nro_historial_paciente, datos.matricula_medico], (err, result) => {

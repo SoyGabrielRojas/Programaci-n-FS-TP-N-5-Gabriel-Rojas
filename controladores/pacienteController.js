@@ -7,10 +7,10 @@ const pacienteBD = require("./../modelos/pacienteModel.js");
 
 // Rutas disponibles para Paciente
 app.get("/", listarPacientes);
-app.get("/:nss", getByNSS);  // Cambié para que use nss en lugar de id
+app.get("/:nss", getByNSS);  
 app.post('/create', crearPaciente);
-app.put("/:nss", modificarPaciente);  // Cambié para que use nss en lugar de id
-app.delete("/:nss", eliminarPaciente);  // Cambié para que use nss en lugar de id
+app.put("/:nss", modificarPaciente); 
+app.delete("/:nss", eliminarPaciente); 
 
 // Funciones
 function listarPacientes(req, res) {
@@ -39,7 +39,16 @@ function crearPaciente(req, res) {
         if (err) {
             res.status(500).json({ message: "Error al crear paciente", detail: err });
         } else {
-            res.status(201).json(result);
+            pacienteBD.metodos.getByNSS(req.body.nss, (err, pacienteCreado) => {
+                if (err) {
+                    res.status(500).json({ message: "Paciente creado, pero error al recuperar los datos", detail: err });
+                } else {
+                    res.status(201).json({
+                        message: "Información del paciente creado",
+                        paciente: pacienteCreado
+                    });
+                }
+            });
         }
     });
 }
@@ -50,20 +59,41 @@ function modificarPaciente(req, res) {
         if (err) {
             res.status(500).json({ message: "Error al modificar paciente", detail: err });
         } else {
-            res.status(200).json(result);
+            pacienteBD.metodos.getByNSS(nss, (err, pacienteModificado) => {
+                if (err) {
+                    res.status(500).json({ message: "Paciente modificado, pero error al recuperar los datos", detail: err });
+                } else {
+                    res.status(200).json({
+                        message: "Información del paciente modificado",
+                        paciente: pacienteModificado
+                    });
+                }
+            });
         }
     });
 }
 
 function eliminarPaciente(req, res) {
     const nss = req.params.nss;
-    pacienteBD.metodos.deletePaciente(nss, (err, result) => {
+    pacienteBD.metodos.getByNSS(nss, (err, pacienteEliminado) => {
         if (err) {
-            res.status(500).json({ message: "Error al eliminar paciente", detail: err });
+            res.status(500).json({ message: "Error al obtener datos del paciente a eliminar", detail: err });
+        } else if (!pacienteEliminado.length) {
+            res.status(404).json({ message: "Paciente no encontrado" });
         } else {
-            res.status(200).json(result);
+            pacienteBD.metodos.deletePaciente(nss, (err, result) => {
+                if (err) {
+                    res.status(500).json({ message: "Error al eliminar paciente", detail: err });
+                } else {
+                    res.status(200).json({
+                        message: "Información del paciente eliminado",
+                        paciente: pacienteEliminado
+                    });
+                }
+            });
         }
     });
 }
+
 
 module.exports = app;
