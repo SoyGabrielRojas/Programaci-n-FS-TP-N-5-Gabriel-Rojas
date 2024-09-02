@@ -13,7 +13,9 @@ const medicoBD = require("./../modelos/medicosModel.js");
 // --------------------------------------------------------
 
 app.get("/", listarTodo);
+//Ruta para getByEspecialidad
 app.get("/especialidad/:especialidad", getByEspecialidad);
+
 app.post('/create', crear);
 app.get('/:matricula', obtenerMedico);
 app.delete("/:matricula", eliminarMedico);
@@ -31,6 +33,7 @@ app.put("/:matricula", modificarMedico);
 // ---------FUNCIONES UTILIZADAS EN ENDPOINTS -------------
 // --------------------------------------------------------
 
+//función getByEspecialidad
 function getByEspecialidad(req, res) {
     especialidad = req.params.especialidad
     medicos = medicoBD.metodos.getByEspecialidad(especialidad, (err, result) => {

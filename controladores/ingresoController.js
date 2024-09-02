@@ -5,6 +5,7 @@ app.use(express.urlencoded({ extended: true }));
 
 const ingresoBD = require("./../modelos/ingresoModel.js");
 
+// Rutas disponibles para ingreso
 app.get("/", listarIngresos);
 app.post("/create", crearIngreso);
 
@@ -24,8 +25,7 @@ function crearIngreso(req, res) {
         if (err) {
             res.status(500).json({ message: "Error al crear ingreso", detail: err });
         } else {
-            // Una vez que se crea el ingreso, se obtienen los datos completos del ingreso creado
-            const idIngreso = result.insertId; // Suponiendo que el campo auto-incremental se llama idIngreso
+            const idIngreso = result.insertId; 
             ingresoBD.metodos.getById(idIngreso, (err, ingresoCreado) => {
                 if (err) {
                     res.status(500).json({ message: "Ingreso creado, pero error al recuperar los datos", detail: err });
